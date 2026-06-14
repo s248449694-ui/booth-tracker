@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booth Tracker</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f4f1;color:#1a1a1a;font-size:14px}
+:root{--accent:#1a1a1a;--gold:#c9963a;--surface:#fff;--surface2:#eeece8;--border:#e0ddd6;--muted:#6b6560;--good:#16a34a;--good-bg:#dcfce7;--med:#d97706;--med-bg:#fef3c7;--bad:#dc2626;--bad-bg:#fee2e2}
+nav{background:var(--accent);color:#fff;display:flex;align-items:center;gap:16px;padding:0 20px;height:50px;position:sticky;top:0;z-index:50}
+.brand{font-size:14px;font-weight:700;letter-spacing:-.3px;color:#fff;white-space:nowrap}.brand span{color:var(--gold)}
+.nav-links{display:flex;gap:2px;flex:1}
+.nav-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;color:#aaa;background:none;border:none;cursor:pointer;white-space:nowrap}
+.nav-btn.active,.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.run-btn{padding:6px 14px;background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.run-btn:hover{opacity:.85}
+.db-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;cursor:pointer;flex-shrink:0}
+.db-dot.ok{background:#22c55e}
+main{padding:20px;max-width:1080px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.page-title{font-size:20px;font-weight:700}.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:7px;overflow:hidden;flex-wrap:wrap}
+.ftab{padding:5px 11px;border:none;background:none;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer}
+.ftab.active{background:var(--accent);color:#fff}
+.ftab:hover:not(.active){background:var(--surface2)}
+.btn{padding:7px 14px;border:1px solid var(--border);background:var(--surface);border-radius:7px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{opacity:.8}
+.btn-danger{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-bg)}
+.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.vendor-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;display:flex;flex-direction:column;gap:7px}
+.card-top{display:flex;justify-content:space-between;align-items:center}
+.rbadge{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.rbadge.good{background:var(--good-bg);color:var(--good)}
+.rbadge.medium{background:var(--med-bg);color:var(--med)}
+.rbadge.bad{background:var(--bad-bg);color:var(--bad)}
+.wbtn{padding:3px 9px;border-radius:5px;border:1px solid var(--border);font-size:11px;font-weight:600;background:none;color:var(--muted);cursor:pointer}
+.wbtn.on{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.vendor-name{font-size:15px;font-weight:700}
+.vendor-links{display:flex;gap:5px;flex-wrap:wrap}
+.vlink{padding:2px 7px;background:var(--surface2);border-radius:4px;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);text-decoration:none}
+.vlink:hover{background:var(--border)}
+.tag-row{display:flex;gap:3px;flex-wrap:wrap}
+.tag{padding:2px 6px;background:#f3f4f6;border-radius:20px;font-size:10px;color:#6b7280}
+.vendor-notes{font-size:12px;color:var(--muted);line-height:1.5}
+.card-footer{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
+.last-chk{font-size:11px;color:var(--muted);flex:1}
+.btn-edit{padding:4px 10px;border:1px solid var(--border);background:none;border-radius:5px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer}
+.btn-edit:hover{background:var(--surface2)}
+.srch-btn{padding:4px 10px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:5px;font-size:11px;font-weight:600;color:#1d4ed8;cursor:pointer;text-decoration:none;white-space:nowrap}
+.opp-list{display:flex;flex-direction:column;gap:7px}
+.opp-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.opp-top{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.opp-name{font-size:14px;font-weight:700}
+.sbadge{padding:2px 7px;border-radius:20px;font-size:11px;font-weight:700}
+.sbadge.new{background:#dbeafe;color:#1e40af}
+.sbadge.interested{background:#ede9fe;color:#5b21b6}
+.sbadge.applied{background:#fef3c7;color:#92400e}
+.sbadge.confirmed{background:#dcfce7;color:#14532d}
+.sbadge.rejected{background:#f3f4f6;color:#6b7280}
+.opp-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:3px}
+.opp-summary{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}
+.src-link{font-size:11px;color:#2563eb;display:inline-block;margin-top:5px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src-link:hover{text-decoration:underline}
+.opp-right{display:flex;flex-direction:column;gap:5px;align-items:flex-end;min-width:100px}
+.dl{font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.dl.expired,.dl.urgent{background:#fee2e2;color:#991b1b}
+.dl.soon{background:#fef3c7;color:#92400e}
+.dl.ok{background:#dcfce7;color:#14532d}
+.dl.none{background:var(--surface2);color:var(--muted)}
+.status-sel{padding:4px 7px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:#f5f4f1;outline:none;cursor:pointer}
+.del-btn{background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;padding:3px;border-radius:3px}
+.del-btn:hover{background:var(--bad-bg)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+/* bulk select */
+.vendor-card.selected{outline:2px solid #3b82f6;background:#f0f7ff}
+.card-check{width:16px;height:16px;cursor:pointer;accent-color:#3b82f6;flex-shrink:0}
+.bulk-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:80;white-space:nowrap}
+.bulk-bar.hide{display:none}
+.bulk-count{font-size:13px;font-weight:600;margin-right:4px}
+.bulk-sep{width:1px;height:18px;background:rgba(255,255,255,.2)}
+.bulk-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer}
+.bulk-rate{background:rgba(255,255,255,.12);color:#fff}
+.bulk-rate:hover{background:rgba(255,255,255,.22)}
+.bulk-del{background:#fee2e2;color:#dc2626}
+.bulk-del:hover{background:#fca5a5}
+.bulk-cancel{background:none;color:#aaa;font-size:12px;cursor:pointer;border:none;padding:4px 8px}
+.bulk-cancel:hover{color:#fff}
+.sel-mode-btn{padding:5px 11px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:11px;font-weight:600;color:#aaa;background:none;cursor:pointer}
+.sel-mode-btn.on{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+.sel-mode-btn:hover{color:#fff}
+.rate-pop{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:90}
+.rate-pop.hide{display:none}
+.rp-btn{padding:6px 14px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
+.rp-good{background:var(--good-bg);color:var(--good)}
+.rp-med{background:var(--med-bg);color:var(--med)}
+.rp-bad{background:var(--bad-bg);color:var(--bad)}
+/* loading */
+.loading-overlay{position:fixed;inset:0;background:#f5f4f1;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* setup */
+.setup-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.setup-card{background:var(--surface);border-radius:16px;padding:28px;max-width:560px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.10)}
+.setup-title{font-size:20px;font-weight:800;margin-bottom:6px}
+.setup-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.step{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;margin-bottom:12px}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step a{color:#2563eb}.step a:hover{text-decoration:underline}
+.step b{font-weight:700}
+code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-family:monospace}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal{background:var(--surface);border-radius:14px;padding:22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
+.fg label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#f9f8f5;outline:none;font-family:inherit;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);background:#fff}
+.fg .hint{font-size:11px;color:var(--muted);line-height:1.4}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.watch-chk{display:flex;align-items:center;gap:7px;font-size:13px;margin-bottom:14px;cursor:pointer}
+.modal-footer{display:flex;gap:7px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border);margin-top:4px}
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:300;pointer-events:none;transition:opacity .25s;white-space:nowrap}
+.toast.hide{opacity:0}
+.toast.info{background:#1a1a1a;color:#fff}
+.toast.success{background:#16a34a;color:#fff}
+.toast.error{background:#dc2626;color:#fff}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--muted)">連線中…</div>
+</div>
+
+<div id="setup-screen" style="display:none">
+<div class="setup-wrap">
+<div class="setup-card">
+  <div class="setup-title">🖋 Booth Tracker — 初始設定</div>
+  <div class="setup-sub">首次使用需要連接一個免費的 Firebase 資料庫。設定後，任何人開啟這個網址都能共用同一份廠商資料。以下步驟全程在瀏覽器完成，不需要終端機。</div>
+  <div class="step"><div class="step-num">1</div><div>前往 <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a>，使用 Google 帳號登入，點「建立專案」→ 輸入名稱 → 關閉 Google Analytics → 建立</div></div>
+  <div class="step"><div class="step-num">2</div><div>左側選單 → <b>Firestore Database</b> → 建立資料庫 → 選「<b>以測試模式啟動</b>」→ 選任意位置 → 完成</div></div>
+  <div class="step"><div class="step-num">3</div><div>左側 ⚙️ 齒輪 → 「<b>專案設定</b>」→ 往下滾到「你的應用程式」→ 點 <code>&lt;/&gt;</code> → 輸入任意名稱 → 複製 <code>firebaseConfig</code> 大括號內的 JSON，貼到下方：</div></div>
+  <div class="fg" style="margin-top:4px">
+    <label>Firebase 設定 JSON</label>
+    <textarea id="fb-config-input" rows="9" style="font-family:monospace;font-size:12px" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+    <div class="hint">⚠️ 確認步驟 2 已建立 Firestore 並選「測試模式」</div>
+  </div>
+  <div id="setup-err" style="color:var(--bad);font-size:12px;margin-bottom:10px;display:none;white-space:pre-wrap"></div>
+  <button class="btn btn-primary" id="setup-btn" style="width:100%;padding:10px" onclick="submitSetup()">連接資料庫並開始使用</button>
+</div>
+</div>
+</div>
+
+<div id="app" style="display:none">
+<nav>
+  <div class="brand">🖋 <span>BOOTH</span>TRACKER</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('vendors',this)">廠商管理</button>
+    <button class="nav-btn" onclick="showPage('opps',this)">擺攤機會</button>
+  </div>
+  <button class="run-btn" onclick="runSearch()">▶ 批次搜尋</button>
+  <button class="sel-mode-btn" id="sel-mode-btn" onclick="toggleSelectMode()">☑ 選取</button>
+  <span class="db-dot ok" id="db-dot" title="Firebase 已連線，點此重設" onclick="resetSetup()"></span>
+</nav>
+<main>
+<div id="page-vendors" class="page active">
+  <div class="page-hdr">
+    <div><h1 class="page-title">廠商 / 主辦方</h1><p class="page-sub" id="vendor-sub">載入中…</p></div>
+    <div class="hdr-actions">
+      <div class="filter-tabs" id="vendor-filters"></div>
+      <button class="btn" onclick="importSeed()">📥 匯入音樂祭範本</button>
+      <button class="btn btn-primary" onclick="openVendorModal()">＋ 新增廠商</button>
+    </div>
+  </div>
+  <div class="vendor-grid" id="vendor-grid"></div>
+  <div class="empty" id="vendor-empty" style="display:none"><div class="empty-icon">🤝</div><p>點「📥 匯入音樂祭範本」一鍵載入，或手動新增</p></div>
+</div>
+<div id="page-opps" class="page">
+  <div class="page-hdr">
+    <div><h1 class="page-title">擺攤機會</h1><p class="page-sub" id="opp-sub">載入中…</p></div>
+    <div class="hdr-actions">
+      <div class="filter-tabs" id="opp-filters"></div>
+      <button class="btn btn-primary" onclick="openOppModal()">＋ 手動新增</button>
+    </div>
+  </div>
+  <div class="opp-list" id="opp-list"></div>
+  <div class="empty" id="opp-empty" style="display:none"><div class="empty-icon">🎪</div><p>點「▶ 批次搜尋」對每個追蹤中的廠商開啟 Google 搜尋，或手動新增</p></div>
+</div>
+</main>
+</div>
+
+<div class="overlay" id="vendor-modal" style="display:none" onclick="if(event.target===this)closeVendorModal()">
+<div class="modal">
+  <h2 class="modal-title" id="vm-title">新增廠商</h2>
+  <div class="fg"><label>廠商名稱 *</label><input id="vm-name" placeholder="例：大港開唱、168幸福市集"></div>
+  <div class="frow">
+    <div class="fg"><label>評價</label><select id="vm-rating"><option value="good">👍 好</option><option value="medium" selected>😐 中</option><option value="bad">👎 差</option></select></div>
+    <div class="fg"><label>官方網站</label><input id="vm-website" placeholder="https://..."></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label>Facebook</label><input id="vm-facebook" placeholder="@帳號"></div>
+    <div class="fg"><label>Instagram</label><input id="vm-instagram" placeholder="@帳號"></div>
+  </div>
+  <div class="fg"><label>搜尋關鍵字（空格分隔）</label><input id="vm-kw" placeholder="大港開唱 Megaport Festival"></div>
+  <div class="fg"><label>標籤（空格分隔）</label><input id="vm-tags" placeholder="音樂祭 高雄 搖滾"></div>
+  <div class="fg"><label>備注</label><textarea id="vm-notes" rows="2" placeholder="合作歷史、注意事項…"></textarea></div>
+  <label class="watch-chk"><input type="checkbox" id="vm-watch"> 加入自動追蹤（批次搜尋時包含）</label>
+  <div class="modal-footer">
+    <button class="btn btn-danger" id="vm-del" onclick="deleteVendor()" style="margin-right:auto;display:none">刪除</button>
+    <button class="btn" onclick="closeVendorModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveVendor()">儲存</button>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="opp-modal" style="display:none" onclick="if(event.target===this)closeOppModal()">
+<div class="modal">
+  <h2 class="modal-title">新增擺攤機會</h2>
+  <div class="fg"><label>活動名稱 *</label><input id="om-name" placeholder="例：好日市集 2026 夏季場"></div>
+  <div class="fg"><label>廠商 / 主辦方</label><input id="om-vendor" placeholder="主辦方名稱"></div>
+  <div class="frow">
+    <div class="fg"><label>申請截止日</label><input id="om-deadline" placeholder="2026/07/15"></div>
+    <div class="fg"><label>活動日期</label><input id="om-date" placeholder="2026/08/20~21"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label>地點</label><input id="om-loc" placeholder="高雄駁二"></div>
+    <div class="fg"><label>攤位費</label><input id="om-fee" placeholder="$2,000/天"></div>
+  </div>
+  <div class="fg"><label>資訊來源 URL</label><input id="om-url" placeholder="https://..."></div>
+  <div class="fg"><label>備注</label><textarea id="om-notes" rows="2"></textarea></div>
+  <div class="modal-footer">
+    <button class="btn" onclick="closeOppModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveOpp()">儲存</button>
+  </div>
+</div>
+</div>
+
+<div class="bulk-bar hide" id="bulk-bar">
+  <span class="bulk-count" id="bulk-count">0 個已選</span>
+  <div class="bulk-sep"></div>
+  <button class="bulk-btn bulk-rate" onclick="showRatePop()">更改評價</button>
+  <button class="bulk-btn bulk-del" onclick="bulkDelete()">🗑 刪除</button>
+  <button class="bulk-cancel" onclick="clearSelection()">取消</button>
+</div>
+<div class="rate-pop hide" id="rate-pop">
+  <button class="rp-btn rp-good" onclick="bulkRate('good')">👍 好</button>
+  <button class="rp-btn rp-med" onclick="bulkRate('medium')">😐 中</button>
+  <button class="rp-btn rp-bad" onclick="bulkRate('bad')">👎 差</button>
+</div>
+<div class="toast hide" id="toast"></div>
+
+<script>
+const SEED=[
+  {name:"大港開唱 Megaport Festival",rating:"good",isWatched:true,website:"https://www.megaportfest.com",facebook:"dakangfest",instagram:"megaportfest",tags:["音樂祭","高雄","搖滾"],kw:["大港開唱","Megaport Festival"],notes:"高雄三月最大搖滾音樂祭，設有市集區，刺青攤需提前 3-4 個月申請"},
+  {name:"春浪音樂節 Spring Wave",rating:"good",isWatched:true,facebook:"springwavemusicfestival",instagram:"springwave_tw",tags:["音樂祭","墾丁","春季"],kw:["春浪音樂節","Spring Wave"],notes:"墾丁春季舉辦，刺青友善度高"},
+  {name:"台灣祭 Taiwan Festival",rating:"good",isWatched:true,website:"https://www.taiwanfestival.tw",facebook:"taiwan.festival2015",tags:["音樂祭","墾丁","免費入場"],kw:["台灣祭","Taiwan Festival"],notes:"墾丁大灣，四月，免費入場，主動招募刺青攤位"},
+  {name:"貢寮國際海洋音樂祭",rating:"medium",isWatched:true,website:"https://www.haiyinfest.com.tw",facebook:"haiyinfest",tags:["音樂祭","新北","夏季"],kw:["貢寮海洋音樂祭"],notes:"新北貢寮，七月，政府主辦"},
+  {name:"搖滾台中 Rock Taichung",rating:"medium",isWatched:true,facebook:"rocktaichung",tags:["音樂祭","台中","搖滾"],kw:["搖滾台中","Rock Taichung"],notes:"台中年度搖滾音樂節"},
+  {name:"好客好民族 Hohak Festival",rating:"medium",isWatched:true,facebook:"hohakfest",instagram:"hohak_festival",tags:["音樂祭","苗栗","客家"],kw:["好客好民族","Hohak Festival"],notes:"苗栗客家主題，攤商風格需符合"},
+  {name:"山海屯音樂節",rating:"medium",isWatched:true,tags:["音樂祭","台中","indie"],kw:["山海屯音樂節"],notes:"台中在地 indie 音樂節"},
+  {name:"168幸福市集",rating:"good",isWatched:true,website:"https://www.168market.tw",facebook:"168market.tw",instagram:"168market",tags:["市集","全台"],kw:["168幸福市集","168market"],notes:"全台各地舉辦，積極招募各類攤商"},
+  {name:"twmarket 台灣文創市集",rating:"good",isWatched:true,website:"https://www.twmarket.tw",facebook:"twmarket.tw",tags:["市集","全台","文創"],kw:["twmarket","台灣文創市集"],notes:"台灣最大市集資訊平台"},
+  {name:"好日市集",rating:"good",isWatched:true,instagram:"haorishiji",tags:["市集","台北","文青"],kw:["好日市集"],notes:"台北為主，文青風格"}
+];
+const RL={good:"👍 好",medium:"😐 中",bad:"👎 差"};
+const SL={new:"🆕 新發現",interested:"有興趣",applied:"已申請",confirmed:"已確認",rejected:"未錄取"};
+const DEFAULT_CONFIG={apiKey:"AIzaSyAw6N-woCfdvsANDxDL0f_DI_GlwoQFo5w",authDomain:"festival-dd862.firebaseapp.com",projectId:"festival-dd862",storageBucket:"festival-dd862.firebasestorage.app",messagingSenderId:"1017230929734",appId:"1:1017230929734:web:72b65734b5dcd74bb6ff47"};
+let db=null,vFilter="all",oFilter="all",editingVendorId=null,vendorsCache=[],oppsCache=[];
+let selectMode=false,selectedIds=new Set();
+const VC="vendors",OC="opportunities";
+
+function toast(msg,type="info"){const t=document.getElementById("toast");t.textContent=msg;t.className="toast "+type;clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add("hide"),3000);}
+function showPage(p,btn){document.querySelectorAll(".page").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(e=>e.classList.remove("active"));document.getElementById("page-"+p).classList.add("active");btn.classList.add("active");}
+function loadCfg(){try{return JSON.parse(localStorage.getItem("fbConfig")||"null")}catch{return null}}
+async function initFB(cfg){if(firebase.apps.length)await firebase.apps[0].delete();firebase.initializeApp(cfg);db=firebase.firestore();await db.collection(VC).limit(1).get();}
+async function boot(){const cfg=loadCfg()||DEFAULT_CONFIG;try{await initFB(cfg);localStorage.setItem("fbConfig",JSON.stringify(cfg));showApp();renderVendors();renderOpps();}catch(e){console.error(e);showSetup("自動連線失敗："+e.message);}}
+function showSetup(err){document.getElementById("loading").style.display="none";document.getElementById("setup-screen").style.display="block";document.getElementById("app").style.display="none";if(err){const el=document.getElementById("setup-err");el.textContent=err;el.style.display="block";}}
+function showApp(){document.getElementById("loading").style.display="none";document.getElementById("setup-screen").style.display="none";document.getElementById("app").style.display="block";}
+async function submitSetup(){
+  const raw=document.getElementById("fb-config-input").value.trim();if(!raw){showSetupErr("請貼上 Firebase 設定 JSON");return;}
+  let cfg;try{cfg=JSON.parse(raw);}catch{try{cfg=JSON.parse("{"+raw+"}");}catch{showSetupErr("JSON 格式有誤");return;}}
+  if(!cfg.projectId||!cfg.apiKey){showSetupErr("缺少 apiKey 或 projectId");return;}
+  const btn=document.getElementById("setup-btn");btn.textContent="連接中…";btn.disabled=true;document.getElementById("setup-err").style.display="none";
+  try{await initFB(cfg);localStorage.setItem("fbConfig",JSON.stringify(cfg));showApp();renderVendors();renderOpps();toast("🎉 Firebase 連接成功！","success");}
+  catch(e){showSetupErr("連接失敗："+e.message+"\n\n→ 確認步驟 2 已在 Firestore 建立資料庫（以測試模式啟動）");btn.textContent="連接資料庫並開始使用";btn.disabled=false;}
+}
+function showSetupErr(m){const el=document.getElementById("setup-err");el.textContent=m;el.style.display="block";}
+function resetSetup(){if(confirm("重新設定 Firebase 連線？（資料不會刪除）")){localStorage.removeItem("fbConfig");location.reload();}}
+
+/* SELECT MODE */
+function toggleSelectMode(){selectMode=!selectMode;selectedIds.clear();const btn=document.getElementById("sel-mode-btn");btn.textContent=selectMode?"✕ 結束選取":"☑ 選取";btn.classList.toggle("on",selectMode);updateBulkBar();renderVendors();}
+function toggleCard(id){if(!selectMode)return;selectedIds.has(id)?selectedIds.delete(id):selectedIds.add(id);const card=document.querySelector(`[data-id="${id}"]`);if(card){card.classList.toggle("selected",selectedIds.has(id));card.querySelector(".card-check").checked=selectedIds.has(id);}updateBulkBar();}
+function toggleSelectAll(){const all=Array.from(document.querySelectorAll(".vendor-card")).map(c=>c.dataset.id);const allSel=all.every(id=>selectedIds.has(id));all.forEach(id=>allSel?selectedIds.delete(id):selectedIds.add(id));renderVendors();updateBulkBar();}
+function updateBulkBar(){const bar=document.getElementById("bulk-bar");const cnt=document.getElementById("bulk-count");if(selectMode&&selectedIds.size>0){bar.classList.remove("hide");cnt.textContent=`${selectedIds.size} 個已選`;}else{bar.classList.add("hide");document.getElementById("rate-pop").classList.add("hide");}}
+function clearSelection(){selectedIds.clear();updateBulkBar();document.querySelectorAll(".vendor-card").forEach(c=>{c.classList.remove("selected");const cb=c.querySelector(".card-check");if(cb)cb.checked=false;});}
+function showRatePop(){document.getElementById("rate-pop").classList.toggle("hide");}
+async function bulkRate(rating){if(!selectedIds.size)return;const batch=db.batch();selectedIds.forEach(id=>batch.update(db.collection(VC).doc(id),{rating}));await batch.commit();document.getElementById("rate-pop").classList.add("hide");toast(`已更新 ${selectedIds.size} 個廠商評價`,"success");selectedIds.clear();updateBulkBar();renderVendors();}
+async function bulkDelete(){if(!selectedIds.size)return;if(!confirm(`確定刪除選取的 ${selectedIds.size} 個廠商？`))return;const batch=db.batch();selectedIds.forEach(id=>batch.delete(db.collection(VC).doc(id)));await batch.commit();toast(`已刪除 ${selectedIds.size} 個廠商`,"success");selectedIds.clear();updateBulkBar();renderVendors();}
+
+/* VENDORS */
+async function loadVendors(){const s=await db.collection(VC).orderBy("createdAt","desc").get();vendorsCache=s.docs.map(d=>({id:d.id,...d.data()}));return vendorsCache;}
+async function renderVendors(){
+  const all=await loadVendors();
+  document.getElementById("vendor-sub").textContent=`${all.length} 個廠商・${all.filter(v=>v.isWatched).length} 個追蹤中`;
+  document.getElementById("vendor-filters").innerHTML=[{val:"all",label:"全部"},{val:"watched",label:"追蹤中"},{val:"good",label:"👍 好"},{val:"medium",label:"😐 中"},{val:"bad",label:"👎 差"}].map(f=>`<button class="ftab${vFilter===f.val?" active":""}" onclick="setVFilter('${f.val}')">${f.label}</button>`).join("");
+  let list=vFilter==="all"?all:vFilter==="watched"?all.filter(v=>v.isWatched):all.filter(v=>v.rating===vFilter);
+  const grid=document.getElementById("vendor-grid"),empty=document.getElementById("vendor-empty");
+  if(!list.length){grid.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  const selAllHtml=selectMode?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--muted)"><input type="checkbox" class="card-check" onchange="toggleSelectAll()" ${list.every(v=>selectedIds.has(v.id))?"checked":""}> 全選（${list.length} 個）</div>`:"";
+  grid.innerHTML=selAllHtml+list.map(v=>`
+  <div class="vendor-card${selectedIds.has(v.id)?" selected":""}" data-id="${v.id}" onclick="${selectMode?`toggleCard('${v.id}')`:""}" style="${selectMode?"cursor:pointer":""}">
+    <div class="card-top">
+      ${selectMode?`<input type="checkbox" class="card-check" ${selectedIds.has(v.id)?"checked":""} onclick="event.stopPropagation();toggleCard('${v.id}')">`:""}
+      <span class="rbadge ${v.rating||"medium"}">${RL[v.rating]||"😐 中"}</span>
+      <button class="wbtn${v.isWatched?" on":""}" onclick="event.stopPropagation();toggleWatch('${v.id}')">${v.isWatched?"👁 追蹤中":"追蹤"}</button>
+    </div>
+    <div class="vendor-name">${v.name}</div>
+    <div class="vendor-links">
+      ${v.website?`<a href="${v.website}" target="_blank" class="vlink">🌐</a>`:""}
+      ${v.facebook?`<a href="https://www.facebook.com/${v.facebook.replace("@","")}" target="_blank" class="vlink">FB</a>`:""}
+      ${v.instagram?`<a href="https://www.instagram.com/${v.instagram.replace("@","")}" target="_blank" class="vlink">IG</a>`:""}
+    </div>
+    ${(v.tags||[]).length?`<div class="tag-row">${v.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>`:""}
+    ${v.notes?`<div class="vendor-notes">${v.notes}</div>`:""}
+    <div class="card-footer">
+      ${v.lastChecked?`<span class="last-chk">搜尋：${(v.lastChecked.toDate?v.lastChecked.toDate():new Date(v.lastChecked)).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"})}</span>`:`<span class="last-chk"></span>`}
+      <a class="srch-btn" href="${searchUrl(v)}" target="_blank" onclick="event.stopPropagation();markSearched('${v.id}')">🔍 搜尋</a>
+      <button class="btn-edit" onclick="event.stopPropagation();openVendorModal('${v.id}')">編輯</button>
+    </div>
+  </div>`).join("");
+}
+function searchUrl(v){const kw=(v.kw&&v.kw.length?v.kw[0]:v.name)+" 擺攤 招商 招募 2026";return "https://www.google.com/search?q="+encodeURIComponent(kw);}
+function setVFilter(f){vFilter=f;renderVendors();}
+async function toggleWatch(id){const v=vendorsCache.find(x=>x.id===id);if(!v)return;await db.collection(VC).doc(id).update({isWatched:!v.isWatched});toast(!v.isWatched?`已追蹤「${v.name}」`:"已取消追蹤");renderVendors();}
+async function markSearched(id){await db.collection(VC).doc(id).update({lastChecked:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});}
+function openVendorModal(id=null){
+  editingVendorId=id;
+  if(id){const v=vendorsCache.find(x=>x.id===id);if(!v)return;document.getElementById("vm-title").textContent="編輯廠商";document.getElementById("vm-name").value=v.name||"";document.getElementById("vm-rating").value=v.rating||"medium";document.getElementById("vm-website").value=v.website||"";document.getElementById("vm-facebook").value=v.facebook||"";document.getElementById("vm-instagram").value=v.instagram||"";document.getElementById("vm-kw").value=(v.kw||[]).join(" ");document.getElementById("vm-tags").value=(v.tags||[]).join(" ");document.getElementById("vm-notes").value=v.notes||"";document.getElementById("vm-watch").checked=!!v.isWatched;document.getElementById("vm-del").style.display="inline-flex";}
+  else{document.getElementById("vm-title").textContent="新增廠商";["vm-name","vm-website","vm-facebook","vm-instagram","vm-kw","vm-tags","vm-notes"].forEach(i=>document.getElementById(i).value="");document.getElementById("vm-rating").value="medium";document.getElementById("vm-watch").checked=false;document.getElementById("vm-del").style.display="none";}
+  document.getElementById("vendor-modal").style.display="flex";setTimeout(()=>document.getElementById("vm-name").focus(),50);
+}
+function closeVendorModal(){document.getElementById("vendor-modal").style.display="none";}
+async function saveVendor(){
+  const name=document.getElementById("vm-name").value.trim();if(!name){toast("請輸入廠商名稱","error");return;}
+  const p={name,rating:document.getElementById("vm-rating").value,website:document.getElementById("vm-website").value.trim(),facebook:document.getElementById("vm-facebook").value.trim(),instagram:document.getElementById("vm-instagram").value.trim(),kw:document.getElementById("vm-kw").value.trim().split(/\s+/).filter(Boolean),tags:document.getElementById("vm-tags").value.trim().split(/\s+/).filter(Boolean),notes:document.getElementById("vm-notes").value.trim(),isWatched:document.getElementById("vm-watch").checked};
+  if(editingVendorId){await db.collection(VC).doc(editingVendorId).update(p);toast("已更新");}
+  else{await db.collection(VC).add({...p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast("已新增廠商","success");}
+  closeVendorModal();renderVendors();
+}
+async function deleteVendor(){if(!confirm("確定刪除這個廠商？"))return;await db.collection(VC).doc(editingVendorId).delete();closeVendorModal();renderVendors();toast("已刪除");}
+async function importSeed(){
+  if(!confirm("匯入 10 個台灣音樂祭/市集範本？（已存在的會略過）"))return;
+  const snap=await db.collection(VC).get();const names=snap.docs.map(d=>d.data().name);let added=0;
+  const batch=db.batch();SEED.forEach(s=>{if(!names.includes(s.name)){batch.set(db.collection(VC).doc(),{...s,createdAt:firebase.firestore.FieldValue.serverTimestamp()});added++;}});
+  await batch.commit();renderVendors();toast(`✅ 匯入 ${added} 筆，已存在 ${SEED.length-added} 筆略過`,"success");
+}
+function runSearch(){
+  const w=vendorsCache.filter(v=>v.isWatched);if(!w.length){toast("沒有追蹤中的廠商","error");return;}
+  if(!confirm(`即將為 ${w.length} 個廠商各開一個 Google 搜尋分頁，確定？`))return;
+  w.forEach((v,i)=>setTimeout(()=>{window.open(searchUrl(v),"_blank");markSearched(v.id);},i*400));
+  toast(`已開啟 ${w.length} 個搜尋分頁`,"success");setTimeout(renderVendors,w.length*400+500);
+}
+
+/* OPPORTUNITIES */
+async function loadOpps(){const s=await db.collection(OC).orderBy("createdAt","desc").get();oppsCache=s.docs.map(d=>({id:d.id,...d.data()}));return oppsCache;}
+async function renderOpps(){
+  const all=await loadOpps();
+  document.getElementById("opp-sub").textContent=`${all.length} 筆記錄`;
+  const cnt={all:all.length};all.forEach(o=>{cnt[o.status]=(cnt[o.status]||0)+1;});
+  document.getElementById("opp-filters").innerHTML=[{val:"all",label:"全部"},{val:"new",label:"🆕 新發現"},{val:"interested",label:"有興趣"},{val:"applied",label:"已申請"},{val:"confirmed",label:"已確認"},{val:"rejected",label:"未錄取"}].map(f=>`<button class="ftab${oFilter===f.val?" active":""}" onclick="setOFilter('${f.val}')">${f.label} <span style="font-size:10px;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:6px">${cnt[f.val]||0}</span></button>`).join("");
+  let list=oFilter==="all"?all:all.filter(o=>o.status===oFilter);
+  const ol=document.getElementById("opp-list"),empty=document.getElementById("opp-empty");
+  if(!list.length){ol.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  ol.innerHTML=list.map(o=>`
+  <div class="opp-card">
+    <div>
+      <div class="opp-top"><span class="opp-name">${o.name}</span><span class="sbadge ${o.status||"new"}">${SL[o.status]||"🆕 新發現"}</span></div>
+      <div class="opp-meta">${o.vendor?`<span>📋 ${o.vendor}</span>`:""}${o.loc?`<span>📍 ${o.loc}</span>`:""}${o.date?`<span>📅 ${o.date}</span>`:""}${o.fee?`<span>💰 ${o.fee}</span>`:""}</div>
+      ${o.notes?`<div class="opp-summary">${o.notes}</div>`:""}
+      ${o.url?`<a href="${o.url}" target="_blank" class="src-link">🔗 ${o.url}</a>`:""}
+    </div>
+    <div class="opp-right">
+      <div class="dl ${dlClass(o.deadline)}">${o.deadline?"截止 "+o.deadline:"無截止日"}</div>
+      <select class="status-sel" onchange="updateOppStatus('${o.id}',this.value)">${Object.entries(SL).map(([k,l])=>`<option value="${k}"${o.status===k?" selected":""}>${l}</option>`).join("")}</select>
+      <button class="del-btn" onclick="deleteOpp('${o.id}')">🗑</button>
+    </div>
+  </div>`).join("");
+}
+function dlClass(d){if(!d)return "none";const diff=Math.ceil((new Date(d.replace(/\//g,"-"))-new Date())/86400000);if(isNaN(diff))return "none";if(diff<0)return "expired";if(diff<=7)return "urgent";if(diff<=14)return "soon";return "ok";}
+function setOFilter(f){oFilter=f;renderOpps();}
+function openOppModal(){["om-name","om-vendor","om-deadline","om-date","om-loc","om-fee","om-url","om-notes"].forEach(i=>document.getElementById(i).value="");document.getElementById("opp-modal").style.display="flex";setTimeout(()=>document.getElementById("om-name").focus(),50);}
+function closeOppModal(){document.getElementById("opp-modal").style.display="none";}
+async function saveOpp(){
+  const name=document.getElementById("om-name").value.trim();if(!name){toast("請輸入活動名稱","error");return;}
+  await db.collection(OC).add({name,vendor:document.getElementById("om-vendor").value.trim(),deadline:document.getElementById("om-deadline").value.trim(),date:document.getElementById("om-date").value.trim(),loc:document.getElementById("om-loc").value.trim(),fee:document.getElementById("om-fee").value.trim(),url:document.getElementById("om-url").value.trim(),notes:document.getElementById("om-notes").value.trim(),status:"new",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  closeOppModal();renderOpps();toast("已新增","success");
+}
+async function updateOppStatus(id,status){await db.collection(OC).doc(id).update({status});const o=oppsCache.find(x=>x.id===id);if(o)o.status=status;toast("狀態已更新");}
+async function deleteOpp(id){if(!confirm("確定刪除？"))return;await db.collection(OC).doc(id).delete();renderOpps();toast("已刪除");}
+
+boot();
+</script>
+</body>
+</html>
