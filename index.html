@@ -15,8 +15,6 @@ nav{background:var(--accent);color:#fff;display:flex;align-items:center;gap:16px
 .nav-links{display:flex;gap:2px;flex:1}
 .nav-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;color:#aaa;background:none;border:none;cursor:pointer;white-space:nowrap}
 .nav-btn.active,.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff}
-.db-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;cursor:pointer;flex-shrink:0}
-.db-dot.ok{background:#22c55e}
 main{padding:20px;max-width:1080px;margin:0 auto}
 .page{display:none}.page.active{display:block}
 .page-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
@@ -31,17 +29,18 @@ main{padding:20px;max-width:1080px;margin:0 auto}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-primary:hover{opacity:.8}
 .btn-danger{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-bg)}
+.search-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.search-input{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--surface);outline:none;flex:1;min-width:160px;font-family:inherit}
+.search-input:focus{border-color:var(--accent)}
+.sort-sel{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:var(--surface);outline:none;cursor:pointer;color:var(--muted)}
 .vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
 .vendor-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;display:flex;flex-direction:column;gap:7px}
-.card-top{display:flex;justify-content:space-between;align-items:center}
-.rbadge{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.rbadge.good{background:var(--good-bg);color:var(--good)}
-.rbadge.medium{background:var(--med-bg);color:var(--med)}
-.rbadge.bad{background:var(--bad-bg);color:var(--bad)}
-.wbtn{padding:3px 9px;border-radius:5px;border:1px solid var(--border);font-size:11px;font-weight:600;background:none;color:var(--muted);cursor:pointer}
+.vendor-card.selected{outline:2px solid #3b82f6;background:#f0f7ff}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.wbtn{padding:3px 9px;border-radius:5px;border:1px solid var(--border);font-size:11px;font-weight:600;background:none;color:var(--muted);cursor:pointer;white-space:nowrap}
 .wbtn.on{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
 .vendor-name{font-size:15px;font-weight:700}
-.vendor-links{display:flex;gap:5px;flex-wrap:wrap}
+.vendor-links{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .vlink{padding:2px 7px;background:var(--surface2);border-radius:4px;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);text-decoration:none}
 .vlink:hover{background:var(--border)}
 .tag-row{display:flex;gap:3px;flex-wrap:wrap}
@@ -55,6 +54,9 @@ main{padding:20px;max-width:1080px;margin:0 auto}
 .scrape-badge.none{background:#f9fafb;border-color:#e5e7eb;color:#9ca3af}
 .scrape-badge.error{background:#fef2f2;border-color:#fecaca;color:#dc2626}
 .scrape-errors{font-size:11px;color:#dc2626;margin-top:4px;padding:5px 8px;background:#fef2f2;border-radius:6px;border:1px solid #fecaca}
+.opp-count{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:#dbeafe;color:#1e40af;white-space:nowrap}
+.opp-count.zero{background:#f3f4f6;color:#9ca3af}
+.new-opp-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#fef3c7;color:#92400e;border:1px solid #fde68a}
 .opp-list{display:flex;flex-direction:column;gap:7px}
 .opp-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
 .opp-top{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
@@ -84,36 +86,29 @@ main{padding:20px;max-width:1080px;margin:0 auto}
 .del-btn:hover{background:var(--bad-bg)}
 .expired-toggle{padding:6px 14px;border:1px solid var(--border);background:var(--surface);border-radius:7px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
 .expired-toggle:hover{background:var(--surface2)}
+.opp-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.stat-chip{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border)}
+.stat-chip span{font-size:16px;font-weight:800;display:block;margin-bottom:1px}
 .empty{text-align:center;padding:50px 20px;color:var(--muted)}
 .empty-icon{font-size:36px;margin-bottom:10px}
-/* bulk select */
-.vendor-card.selected{outline:2px solid #3b82f6;background:#f0f7ff}
 .card-check{width:16px;height:16px;cursor:pointer;accent-color:#3b82f6;flex-shrink:0}
 .bulk-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:80;white-space:nowrap}
 .bulk-bar.hide{display:none}
 .bulk-count{font-size:13px;font-weight:600;margin-right:4px}
 .bulk-sep{width:1px;height:18px;background:rgba(255,255,255,.2)}
 .bulk-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer}
-.bulk-rate{background:rgba(255,255,255,.12);color:#fff}
-.bulk-rate:hover{background:rgba(255,255,255,.22)}
 .bulk-del{background:#fee2e2;color:#dc2626}
 .bulk-del:hover{background:#fca5a5}
+.bulk-watch{background:rgba(255,255,255,.12);color:#fff}
+.bulk-watch:hover{background:rgba(255,255,255,.22)}
 .bulk-cancel{background:none;color:#aaa;font-size:12px;cursor:pointer;border:none;padding:4px 8px}
 .bulk-cancel:hover{color:#fff}
 .sel-mode-btn{padding:5px 11px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:11px;font-weight:600;color:#aaa;background:none;cursor:pointer}
 .sel-mode-btn.on{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
 .sel-mode-btn:hover{color:#fff}
-.rate-pop{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:90}
-.rate-pop.hide{display:none}
-.rp-btn{padding:6px 14px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
-.rp-good{background:var(--good-bg);color:var(--good)}
-.rp-med{background:var(--med-bg);color:var(--med)}
-.rp-bad{background:var(--bad-bg);color:var(--bad)}
-/* loading */
 .loading-overlay{position:fixed;inset:0;background:#f5f4f1;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:12px}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* setup */
 .setup-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .setup-card{background:var(--surface);border-radius:16px;padding:28px;max-width:560px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.10)}
 .setup-title{font-size:20px;font-weight:800;margin-bottom:6px}
@@ -121,12 +116,11 @@ main{padding:20px;max-width:1080px;margin:0 auto}
 .step{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;margin-bottom:12px}
 .step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .step a{color:#2563eb}.step a:hover{text-decoration:underline}
-.step b{font-weight:700}
 code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-family:monospace}
-/* modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal{background:var(--surface);border-radius:14px;padding:22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
 .fg label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
 .fg input,.fg select,.fg textarea{padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#f9f8f5;outline:none;font-family:inherit;width:100%}
@@ -135,7 +129,6 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .watch-chk{display:flex;align-items:center;gap:7px;font-size:13px;margin-bottom:14px;cursor:pointer}
 .modal-footer{display:flex;gap:7px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border);margin-top:4px}
-/* toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:300;pointer-events:none;transition:opacity .25s;white-space:nowrap}
 .toast.hide{opacity:0}
 .toast.info{background:#1a1a1a;color:#fff}
@@ -175,7 +168,6 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
     <button class="nav-btn" onclick="showPage('opps',this)">擺攤機會</button>
   </div>
   <button class="sel-mode-btn" id="sel-mode-btn" onclick="toggleSelectMode()">☑ 選取</button>
-  <span class="db-dot ok" id="db-dot" title="Firebase 已連線，點此重設" onclick="resetSetup()"></span>
 </nav>
 <main>
 <div id="page-vendors" class="page active">
@@ -183,12 +175,21 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
     <div><h1 class="page-title">廠商 / 主辦方</h1><p class="page-sub" id="vendor-sub">載入中…</p></div>
     <div class="hdr-actions">
       <div class="filter-tabs" id="vendor-filters"></div>
-      <button class="btn" onclick="importSeed()">📥 匯入音樂祭範本</button>
+      <select class="sort-sel" id="sort-sel" onchange="renderVendors()">
+        <option value="createdAt">最新加入</option>
+        <option value="name">名稱排序</option>
+        <option value="lastScraped">最近更新</option>
+        <option value="oppCount">機會數量</option>
+      </select>
       <button class="btn btn-primary" onclick="openVendorModal()">＋ 新增廠商</button>
     </div>
   </div>
+  <div class="search-row">
+    <input class="search-input" id="vendor-search" placeholder="🔍 搜尋廠商名稱…" oninput="renderVendors()">
+    <button class="btn" onclick="importSeed()" style="font-size:11px;padding:6px 10px;white-space:nowrap">📥 匯入範本</button>
+  </div>
   <div class="vendor-grid" id="vendor-grid"></div>
-  <div class="empty" id="vendor-empty" style="display:none"><div class="empty-icon">🤝</div><p>點「📥 匯入音樂祭範本」一鍵載入，或手動新增</p></div>
+  <div class="empty" id="vendor-empty" style="display:none"><div class="empty-icon">🤝</div><p>點「📥 匯入範本」一鍵載入，或手動新增</p></div>
 </div>
 <div id="page-opps" class="page">
   <div class="page-hdr">
@@ -199,6 +200,7 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
       <button class="btn btn-primary" onclick="openOppModal()">＋ 手動新增</button>
     </div>
   </div>
+  <div class="opp-stats" id="opp-stats"></div>
   <div class="opp-list" id="opp-list"></div>
   <div class="empty" id="opp-empty" style="display:none">
     <div class="empty-icon">🎪</div>
@@ -212,23 +214,27 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
 <div class="modal">
   <h2 class="modal-title" id="vm-title">新增廠商</h2>
   <div class="fg"><label>廠商名稱 *</label><input id="vm-name" placeholder="例：大港開唱、168幸福市集"></div>
+
+  <div class="modal-section">社群連結（顯示用）</div>
   <div class="frow">
-    <div class="fg"><label>評價</label><select id="vm-rating"><option value="good">👍 好</option><option value="medium" selected>😐 中</option><option value="bad">👎 差</option></select></div>
-    <div class="fg"><label>官方網站</label><input id="vm-website" placeholder="https://..."></div>
+    <div class="fg"><label>Facebook 粉專</label><input id="vm-facebook" placeholder="@帳號或網址"></div>
+    <div class="fg"><label>Instagram（僅顯示）</label><input id="vm-instagram" placeholder="@帳號"></div>
   </div>
-  <div class="frow">
-    <div class="fg"><label>Facebook 粉專（顯示用）</label><input id="vm-facebook" placeholder="@帳號或網址"></div>
-    <div class="fg"><label>Instagram</label><input id="vm-instagram" placeholder="@帳號"></div>
-  </div>
+  <div class="fg"><label>官方網站</label><input id="vm-website" placeholder="https://..."></div>
+
+  <div class="modal-section">爬蟲設定（自動監控用）</div>
   <div class="fg">
-    <label>FB 粉專 ID（爬蟲用）</label>
+    <label>FB 粉專 ID</label>
     <input id="vm-fbpage" placeholder="例：dakangfest 或 168market.tw">
-    <div class="hint">⚠️ 爬蟲自動抓貼文用，填 FB 網址最後一段文字即可</div>
+    <div class="hint">填 FB 網址最後一段文字，爬蟲用 Graph API 自動抓貼文。Instagram 不支援自動抓取。</div>
   </div>
+  <label class="watch-chk"><input type="checkbox" id="vm-watch"> 加入自動追蹤（爬蟲會監控此廠商）</label>
+
+  <div class="modal-section">其他資訊</div>
   <div class="fg"><label>搜尋關鍵字（空格分隔）</label><input id="vm-kw" placeholder="大港開唱 Megaport Festival"></div>
   <div class="fg"><label>標籤（空格分隔）</label><input id="vm-tags" placeholder="音樂祭 高雄 搖滾"></div>
   <div class="fg"><label>備注</label><textarea id="vm-notes" rows="2" placeholder="合作歷史、注意事項…"></textarea></div>
-  <label class="watch-chk"><input type="checkbox" id="vm-watch"> 加入自動追蹤（爬蟲會監控此廠商）</label>
+
   <div class="modal-footer">
     <button class="btn btn-danger" id="vm-del" onclick="deleteVendor()" style="margin-right:auto;display:none">刪除</button>
     <button class="btn" onclick="closeVendorModal()">取消</button>
@@ -262,39 +268,37 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
 <div class="bulk-bar hide" id="bulk-bar">
   <span class="bulk-count" id="bulk-count">0 個已選</span>
   <div class="bulk-sep"></div>
-  <button class="bulk-btn bulk-rate" onclick="showRatePop()">更改評價</button>
+  <button class="bulk-btn bulk-watch" onclick="bulkToggleWatch(true)">⭐ 設為追蹤</button>
+  <button class="bulk-btn bulk-watch" onclick="bulkToggleWatch(false)">— 取消追蹤</button>
   <button class="bulk-btn bulk-del" onclick="bulkDelete()">🗑 刪除</button>
   <button class="bulk-cancel" onclick="clearSelection()">取消</button>
-</div>
-<div class="rate-pop hide" id="rate-pop">
-  <button class="rp-btn rp-good" onclick="bulkRate('good')">👍 好</button>
-  <button class="rp-btn rp-med" onclick="bulkRate('medium')">😐 中</button>
-  <button class="rp-btn rp-bad" onclick="bulkRate('bad')">👎 差</button>
 </div>
 <div class="toast hide" id="toast"></div>
 
 <script>
 const SEED=[
-  {name:"大港開唱 Megaport Festival",rating:"good",isWatched:true,website:"https://www.megaportfest.com",facebook:"dakangfest",instagram:"megaportfest",fbPage:"dakangfest",tags:["音樂祭","高雄","搖滾"],kw:["大港開唱","Megaport Festival"],notes:"高雄三月最大搖滾音樂祭，設有市集區，刺青攤需提前 3-4 個月申請"},
-  {name:"春浪音樂節 Spring Wave",rating:"good",isWatched:true,facebook:"springwavemusicfestival",instagram:"springwave_tw",fbPage:"springwavemusicfestival",tags:["音樂祭","墾丁","春季"],kw:["春浪音樂節","Spring Wave"],notes:"墾丁春季舉辦，刺青友善度高"},
-  {name:"台灣祭 Taiwan Festival",rating:"good",isWatched:true,website:"https://www.taiwanfestival.tw",facebook:"taiwan.festival2015",fbPage:"taiwan.festival2015",tags:["音樂祭","墾丁","免費入場"],kw:["台灣祭","Taiwan Festival"],notes:"墾丁大灣，四月，免費入場，主動招募刺青攤位"},
-  {name:"貢寮國際海洋音樂祭",rating:"medium",isWatched:true,website:"https://www.haiyinfest.com.tw",facebook:"haiyinfest",fbPage:"haiyinfest",tags:["音樂祭","新北","夏季"],kw:["貢寮海洋音樂祭"],notes:"新北貢寮，七月，政府主辦"},
-  {name:"搖滾台中 Rock Taichung",rating:"medium",isWatched:true,facebook:"rocktaichung",fbPage:"rocktaichung",tags:["音樂祭","台中","搖滾"],kw:["搖滾台中","Rock Taichung"],notes:"台中年度搖滾音樂節"},
-  {name:"好客好民族 Hohak Festival",rating:"medium",isWatched:true,facebook:"hohakfest",instagram:"hohak_festival",fbPage:"hohakfest",tags:["音樂祭","苗栗","客家"],kw:["好客好民族","Hohak Festival"],notes:"苗栗客家主題，攤商風格需符合"},
-  {name:"山海屯音樂節",rating:"medium",isWatched:true,fbPage:"",tags:["音樂祭","台中","indie"],kw:["山海屯音樂節"],notes:"台中在地 indie 音樂節"},
-  {name:"168幸福市集",rating:"good",isWatched:true,website:"https://www.168market.tw",facebook:"168market.tw",instagram:"168market",fbPage:"168market.tw",tags:["市集","全台"],kw:["168幸福市集","168market"],notes:"全台各地舉辦，積極招募各類攤商"},
-  {name:"twmarket 台灣文創市集",rating:"good",isWatched:true,website:"https://www.twmarket.tw",facebook:"twmarket.tw",fbPage:"twmarket.tw",tags:["市集","全台","文創"],kw:["twmarket","台灣文創市集"],notes:"台灣最大市集資訊平台"},
-  {name:"好日市集",rating:"good",isWatched:true,instagram:"haorishiji",fbPage:"",tags:["市集","台北","文青"],kw:["好日市集"],notes:"台北為主，文青風格"}
+  {name:"大港開唱 Megaport Festival",isWatched:true,website:"https://www.megaportfest.com",facebook:"dakangfest",instagram:"megaportfest",fbPage:"dakangfest",tags:["音樂祭","高雄","搖滾"],kw:["大港開唱","Megaport Festival"],notes:"高雄三月最大搖滾音樂祭，設有市集區，刺青攤需提前 3-4 個月申請"},
+  {name:"春浪音樂節 Spring Wave",isWatched:true,facebook:"springwavemusicfestival",instagram:"springwave_tw",fbPage:"springwavemusicfestival",tags:["音樂祭","墾丁","春季"],kw:["春浪音樂節","Spring Wave"],notes:"墾丁春季舉辦，刺青友善度高"},
+  {name:"台灣祭 Taiwan Festival",isWatched:true,website:"https://www.taiwanfestival.tw",facebook:"taiwan.festival2015",fbPage:"taiwan.festival2015",tags:["音樂祭","墾丁","免費入場"],kw:["台灣祭","Taiwan Festival"],notes:"墾丁大灣，四月，免費入場，主動招募刺青攤位"},
+  {name:"貢寮國際海洋音樂祭",isWatched:true,website:"https://www.haiyinfest.com.tw",facebook:"haiyinfest",fbPage:"haiyinfest",tags:["音樂祭","新北","夏季"],kw:["貢寮海洋音樂祭"],notes:"新北貢寮，七月，政府主辦"},
+  {name:"搖滾台中 Rock Taichung",isWatched:true,facebook:"rocktaichung",fbPage:"rocktaichung",tags:["音樂祭","台中","搖滾"],kw:["搖滾台中","Rock Taichung"],notes:"台中年度搖滾音樂節"},
+  {name:"好客好民族 Hohak Festival",isWatched:true,facebook:"hohakfest",instagram:"hohak_festival",fbPage:"hohakfest",tags:["音樂祭","苗栗","客家"],kw:["好客好民族","Hohak Festival"],notes:"苗栗客家主題，攤商風格需符合"},
+  {name:"山海屯音樂節",isWatched:true,fbPage:"",tags:["音樂祭","台中","indie"],kw:["山海屯音樂節"],notes:"台中在地 indie 音樂節"},
+  {name:"168幸福市集",isWatched:true,website:"https://www.168market.tw",facebook:"168market.tw",instagram:"168market",fbPage:"168market.tw",tags:["市集","全台"],kw:["168幸福市集","168market"],notes:"全台各地舉辦，積極招募各類攤商"},
+  {name:"twmarket 台灣文創市集",isWatched:true,website:"https://www.twmarket.tw",facebook:"twmarket.tw",fbPage:"twmarket.tw",tags:["市集","全台","文創"],kw:["twmarket","台灣文創市集"],notes:"台灣最大市集資訊平台"},
+  {name:"好日市集",isWatched:false,instagram:"haorishiji",fbPage:"",tags:["市集","台北","文青"],kw:["好日市集"],notes:"台北為主，文青風格"}
 ];
-const RL={good:"👍 好",medium:"😐 中",bad:"👎 差"};
 const SL={new:"🆕 新發現",interested:"有興趣",applied:"已申請",confirmed:"已確認",rejected:"未錄取"};
 const DEFAULT_CONFIG={apiKey:"AIzaSyAw6N-woCfdvsANDxDL0f_DI_GlwoQFo5w",authDomain:"festival-dd862.firebaseapp.com",projectId:"festival-dd862",storageBucket:"festival-dd862.firebasestorage.app",messagingSenderId:"1017230929734",appId:"1:1017230929734:web:72b65734b5dcd74bb6ff47"};
 let db=null,vFilter="all",oFilter="all",editingVendorId=null,vendorsCache=[],oppsCache=[];
 let selectMode=false,selectedIds=new Set(),showExpired=false;
 const VC="vendors",OC="opportunities";
 
+// 7天內新增的機會視為「新」
+const NEW_THRESHOLD = 7 * 24 * 60 * 60 * 1000;
+
 function toast(msg,type="info"){const t=document.getElementById("toast");t.textContent=msg;t.className="toast "+type;clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add("hide"),3000);}
-function showPage(p,btn){document.querySelectorAll(".page").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(e=>e.classList.remove("active"));document.getElementById("page-"+p).classList.add("active");btn.classList.add("active");}
+function showPage(p,btn){document.querySelectorAll(".page").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(e=>e.classList.remove("active"));document.getElementById("page-"+p).classList.add("active");btn.classList.add("active");if(p==="opps")renderOpps();}
 function loadCfg(){try{return JSON.parse(localStorage.getItem("fbConfig")||"null")}catch{return null}}
 async function initFB(cfg){if(firebase.apps.length)await firebase.apps[0].delete();firebase.initializeApp(cfg);db=firebase.firestore();await db.collection(VC).limit(1).get();}
 async function boot(){const cfg=loadCfg()||DEFAULT_CONFIG;try{await initFB(cfg);localStorage.setItem("fbConfig",JSON.stringify(cfg));showApp();renderVendors();renderOpps();}catch(e){console.error(e);showSetup("自動連線失敗："+e.message);}}
@@ -309,40 +313,77 @@ async function submitSetup(){
   catch(e){showSetupErr("連接失敗："+e.message);btn.textContent="連接資料庫並開始使用";btn.disabled=false;}
 }
 function showSetupErr(m){const el=document.getElementById("setup-err");el.textContent=m;el.style.display="block";}
-function resetSetup(){if(confirm("重新設定 Firebase 連線？（資料不會刪除）")){localStorage.removeItem("fbConfig");location.reload();}}
 
 /* SELECT MODE */
 function toggleSelectMode(){selectMode=!selectMode;selectedIds.clear();const btn=document.getElementById("sel-mode-btn");btn.textContent=selectMode?"✕ 結束選取":"☑ 選取";btn.classList.toggle("on",selectMode);updateBulkBar();renderVendors();}
 function toggleCard(id){if(!selectMode)return;selectedIds.has(id)?selectedIds.delete(id):selectedIds.add(id);const card=document.querySelector(`[data-id="${id}"]`);if(card){card.classList.toggle("selected",selectedIds.has(id));card.querySelector(".card-check").checked=selectedIds.has(id);}updateBulkBar();}
 function toggleSelectAll(){const all=Array.from(document.querySelectorAll(".vendor-card")).map(c=>c.dataset.id);const allSel=all.every(id=>selectedIds.has(id));all.forEach(id=>allSel?selectedIds.delete(id):selectedIds.add(id));renderVendors();updateBulkBar();}
-function updateBulkBar(){const bar=document.getElementById("bulk-bar");const cnt=document.getElementById("bulk-count");if(selectMode&&selectedIds.size>0){bar.classList.remove("hide");cnt.textContent=`${selectedIds.size} 個已選`;}else{bar.classList.add("hide");document.getElementById("rate-pop").classList.add("hide");}}
+function updateBulkBar(){const bar=document.getElementById("bulk-bar");const cnt=document.getElementById("bulk-count");if(selectMode&&selectedIds.size>0){bar.classList.remove("hide");cnt.textContent=`${selectedIds.size} 個已選`;}else{bar.classList.add("hide");}}
 function clearSelection(){selectedIds.clear();updateBulkBar();document.querySelectorAll(".vendor-card").forEach(c=>{c.classList.remove("selected");const cb=c.querySelector(".card-check");if(cb)cb.checked=false;});}
-function showRatePop(){document.getElementById("rate-pop").classList.toggle("hide");}
-async function bulkRate(rating){if(!selectedIds.size)return;const batch=db.batch();selectedIds.forEach(id=>batch.update(db.collection(VC).doc(id),{rating}));await batch.commit();document.getElementById("rate-pop").classList.add("hide");toast(`已更新 ${selectedIds.size} 個廠商評價`,"success");selectedIds.clear();updateBulkBar();renderVendors();}
+async function bulkToggleWatch(val){if(!selectedIds.size)return;const batch=db.batch();selectedIds.forEach(id=>batch.update(db.collection(VC).doc(id),{isWatched:val}));await batch.commit();toast(`已${val?"設為追蹤":"取消追蹤"} ${selectedIds.size} 個廠商`,"success");selectedIds.clear();updateBulkBar();renderVendors();}
 async function bulkDelete(){if(!selectedIds.size)return;if(!confirm(`確定刪除選取的 ${selectedIds.size} 個廠商？`))return;const batch=db.batch();selectedIds.forEach(id=>batch.delete(db.collection(VC).doc(id)));await batch.commit();toast(`已刪除 ${selectedIds.size} 個廠商`,"success");selectedIds.clear();updateBulkBar();renderVendors();}
 
 /* VENDORS */
-async function loadVendors(){const s=await db.collection(VC).orderBy("createdAt","desc").get();vendorsCache=s.docs.map(d=>({id:d.id,...d.data()}));return vendorsCache;}
+async function loadVendors(){const s=await db.collection(VC).get();vendorsCache=s.docs.map(d=>({id:d.id,...d.data()}));return vendorsCache;}
 async function renderVendors(){
   const all=await loadVendors();
-  document.getElementById("vendor-sub").textContent=`${all.length} 個廠商・${all.filter(v=>v.isWatched).length} 個追蹤中（爬蟲監控）`;
-  document.getElementById("vendor-filters").innerHTML=[{val:"all",label:"全部"},{val:"watched",label:"追蹤中"},{val:"good",label:"👍 好"},{val:"medium",label:"😐 中"},{val:"bad",label:"👎 差"}].map(f=>`<button class="ftab${vFilter===f.val?" active":""}" onclick="setVFilter('${f.val}')">${f.label}</button>`).join("");
-  let list=vFilter==="all"?all:vFilter==="watched"?all.filter(v=>v.isWatched):all.filter(v=>v.rating===vFilter);
+  await loadOpps(); // 確保 oppsCache 是最新的
+
+  const watchedCount=all.filter(v=>v.isWatched).length;
+  document.getElementById("vendor-sub").textContent=`${all.length} 個廠商・${watchedCount} 個追蹤中（爬蟲監控）`;
+
+  document.getElementById("vendor-filters").innerHTML=[
+    {val:"all",label:"全部"},
+    {val:"watched",label:"⭐ 追蹤中"},
+    {val:"unwatched",label:"— 未追蹤"}
+  ].map(f=>`<button class="ftab${vFilter===f.val?" active":""}" onclick="setVFilter('${f.val}')">${f.label}</button>`).join("");
+
+  const searchQ=(document.getElementById("vendor-search").value||"").toLowerCase().trim();
+  const sortBy=document.getElementById("sort-sel").value;
+
+  let list=all.slice();
+  if(vFilter==="watched")list=list.filter(v=>v.isWatched);
+  else if(vFilter==="unwatched")list=list.filter(v=>!v.isWatched);
+  if(searchQ)list=list.filter(v=>(v.name||"").toLowerCase().includes(searchQ)||(v.tags||[]).join(" ").toLowerCase().includes(searchQ));
+
+  // 計算每個廠商的有效機會數和新機會數
+  const now=Date.now();
+  list.forEach(v=>{
+    const vOpps=oppsCache.filter(o=>o.vendor===v.name&&!isExpired(o.deadline));
+    v._oppCount=vOpps.length;
+    v._newCount=vOpps.filter(o=>{
+      const t=o.createdAt?.toDate?o.createdAt.toDate():o.createdAt?new Date(o.createdAt):null;
+      return t&&(now-t.getTime()<NEW_THRESHOLD);
+    }).length;
+  });
+
+  // 排序
+  if(sortBy==="name")list.sort((a,b)=>(a.name||"").localeCompare(b.name||"","zh-TW"));
+  else if(sortBy==="lastScraped")list.sort((a,b)=>{const ta=a.lastScraped?.toDate?a.lastScraped.toDate():a.lastScraped?new Date(a.lastScraped):new Date(0);const tb=b.lastScraped?.toDate?b.lastScraped.toDate():b.lastScraped?new Date(b.lastScraped):new Date(0);return tb-ta;});
+  else if(sortBy==="oppCount")list.sort((a,b)=>b._oppCount-a._oppCount);
+  else list.sort((a,b)=>{const ta=a.createdAt?.toDate?a.createdAt.toDate():a.createdAt?new Date(a.createdAt):new Date(0);const tb=b.createdAt?.toDate?b.createdAt.toDate():b.createdAt?new Date(b.createdAt):new Date(0);return tb-ta;});
+
   const grid=document.getElementById("vendor-grid"),empty=document.getElementById("vendor-empty");
   if(!list.length){grid.innerHTML="";empty.style.display="block";return;}
   empty.style.display="none";
+
   const selAllHtml=selectMode?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--muted)"><input type="checkbox" class="card-check" onchange="toggleSelectAll()" ${list.every(v=>selectedIds.has(v.id))?"checked":""}> 全選（${list.length} 個）</div>`:"";
   grid.innerHTML=selAllHtml+list.map(v=>{
     const lastScraped=v.lastScraped?(v.lastScraped.toDate?v.lastScraped.toDate():new Date(v.lastScraped)):null;
     const hasBot=v.isWatched&&(v.fbPage||v.website);
     const scrapeErrors=v.scrapeErrors&&v.scrapeErrors.length?v.scrapeErrors:[];
     const hasError=scrapeErrors.length>0;
+    const oppCount=v._oppCount||0;
+    const newCount=v._newCount||0;
     return `
   <div class="vendor-card${selectedIds.has(v.id)?" selected":""}" data-id="${v.id}" onclick="${selectMode?`toggleCard('${v.id}')`:""}" style="${selectMode?"cursor:pointer":""}">
     <div class="card-top">
       ${selectMode?`<input type="checkbox" class="card-check" ${selectedIds.has(v.id)?"checked":""} onclick="event.stopPropagation();toggleCard('${v.id}')">`:""}
-      <span class="rbadge ${v.rating||"medium"}">${RL[v.rating]||"😐 中"}</span>
-      <button class="wbtn${v.isWatched?" on":""}" onclick="event.stopPropagation();toggleWatch('${v.id}')">${v.isWatched?"🤖 追蹤中":"追蹤"}</button>
+      <button class="wbtn${v.isWatched?" on":""}" onclick="event.stopPropagation();toggleWatch('${v.id}')">${v.isWatched?"⭐ 追蹤中":"追蹤"}</button>
+      <div style="display:flex;gap:4px;align-items:center;margin-left:auto">
+        ${newCount>0?`<span class="new-opp-badge">🆕 ${newCount} 新</span>`:""}
+        <span class="opp-count${oppCount===0?" zero":""}">${oppCount} 個機會</span>
+      </div>
     </div>
     <div class="vendor-name">${v.name}</div>
     <div class="vendor-links">
@@ -361,17 +402,35 @@ async function renderVendors(){
   </div>`}).join("");
 }
 function setVFilter(f){vFilter=f;renderVendors();}
-async function toggleWatch(id){const v=vendorsCache.find(x=>x.id===id);if(!v)return;await db.collection(VC).doc(id).update({isWatched:!v.isWatched});toast(!v.isWatched?`已追蹤「${v.name}」（爬蟲下次執行時開始監控）`:"已取消追蹤");renderVendors();}
+async function toggleWatch(id){const v=vendorsCache.find(x=>x.id===id);if(!v)return;await db.collection(VC).doc(id).update({isWatched:!v.isWatched});toast(!v.isWatched?`已追蹤「${v.name}」`:"已取消追蹤");renderVendors();}
 function openVendorModal(id=null){
   editingVendorId=id;
-  if(id){const v=vendorsCache.find(x=>x.id===id);if(!v)return;document.getElementById("vm-title").textContent="編輯廠商";document.getElementById("vm-name").value=v.name||"";document.getElementById("vm-rating").value=v.rating||"medium";document.getElementById("vm-website").value=v.website||"";document.getElementById("vm-facebook").value=v.facebook||"";document.getElementById("vm-instagram").value=v.instagram||"";document.getElementById("vm-fbpage").value=v.fbPage||"";document.getElementById("vm-kw").value=(v.kw||[]).join(" ");document.getElementById("vm-tags").value=(v.tags||[]).join(" ");document.getElementById("vm-notes").value=v.notes||"";document.getElementById("vm-watch").checked=!!v.isWatched;document.getElementById("vm-del").style.display="inline-flex";}
-  else{document.getElementById("vm-title").textContent="新增廠商";["vm-name","vm-website","vm-facebook","vm-instagram","vm-fbpage","vm-kw","vm-tags","vm-notes"].forEach(i=>document.getElementById(i).value="");document.getElementById("vm-rating").value="medium";document.getElementById("vm-watch").checked=false;document.getElementById("vm-del").style.display="none";}
-  document.getElementById("vendor-modal").style.display="flex";setTimeout(()=>document.getElementById("vm-name").focus(),50);
+  if(id){
+    const v=vendorsCache.find(x=>x.id===id);if(!v)return;
+    document.getElementById("vm-title").textContent="編輯廠商";
+    document.getElementById("vm-name").value=v.name||"";
+    document.getElementById("vm-website").value=v.website||"";
+    document.getElementById("vm-facebook").value=v.facebook||"";
+    document.getElementById("vm-instagram").value=v.instagram||"";
+    document.getElementById("vm-fbpage").value=v.fbPage||"";
+    document.getElementById("vm-kw").value=(v.kw||[]).join(" ");
+    document.getElementById("vm-tags").value=(v.tags||[]).join(" ");
+    document.getElementById("vm-notes").value=v.notes||"";
+    document.getElementById("vm-watch").checked=!!v.isWatched;
+    document.getElementById("vm-del").style.display="inline-flex";
+  } else {
+    document.getElementById("vm-title").textContent="新增廠商";
+    ["vm-name","vm-website","vm-facebook","vm-instagram","vm-fbpage","vm-kw","vm-tags","vm-notes"].forEach(i=>document.getElementById(i).value="");
+    document.getElementById("vm-watch").checked=false;
+    document.getElementById("vm-del").style.display="none";
+  }
+  document.getElementById("vendor-modal").style.display="flex";
+  setTimeout(()=>document.getElementById("vm-name").focus(),50);
 }
 function closeVendorModal(){document.getElementById("vendor-modal").style.display="none";}
 async function saveVendor(){
   const name=document.getElementById("vm-name").value.trim();if(!name){toast("請輸入廠商名稱","error");return;}
-  const p={name,rating:document.getElementById("vm-rating").value,website:document.getElementById("vm-website").value.trim(),facebook:document.getElementById("vm-facebook").value.trim(),instagram:document.getElementById("vm-instagram").value.trim(),fbPage:document.getElementById("vm-fbpage").value.trim(),kw:document.getElementById("vm-kw").value.trim().split(/\s+/).filter(Boolean),tags:document.getElementById("vm-tags").value.trim().split(/\s+/).filter(Boolean),notes:document.getElementById("vm-notes").value.trim(),isWatched:document.getElementById("vm-watch").checked};
+  const p={name,website:document.getElementById("vm-website").value.trim(),facebook:document.getElementById("vm-facebook").value.trim(),instagram:document.getElementById("vm-instagram").value.trim(),fbPage:document.getElementById("vm-fbpage").value.trim(),kw:document.getElementById("vm-kw").value.trim().split(/\s+/).filter(Boolean),tags:document.getElementById("vm-tags").value.trim().split(/\s+/).filter(Boolean),notes:document.getElementById("vm-notes").value.trim(),isWatched:document.getElementById("vm-watch").checked};
   if(editingVendorId){await db.collection(VC).doc(editingVendorId).update(p);toast("已更新");}
   else{await db.collection(VC).add({...p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast("已新增廠商","success");}
   closeVendorModal();renderVendors();
@@ -399,21 +458,42 @@ function isExpired(deadline){
 async function loadOpps(){const s=await db.collection(OC).orderBy("createdAt","desc").get();oppsCache=s.docs.map(d=>({id:d.id,...d.data()}));return oppsCache;}
 async function renderOpps(){
   const all=await loadOpps();
-  const expiredCount=all.filter(o=>isExpired(o.deadline)).length;
+  const now=Date.now();
+  const activeOpps=all.filter(o=>!isExpired(o.deadline));
+  const expiredCount=all.length-activeOpps.length;
+  const newCount=activeOpps.filter(o=>{const t=o.createdAt?.toDate?o.createdAt.toDate():o.createdAt?new Date(o.createdAt):null;return t&&(now-t.getTime()<NEW_THRESHOLD);}).length;
+  const appliedCount=activeOpps.filter(o=>o.status==="applied").length;
+  const confirmedCount=activeOpps.filter(o=>o.status==="confirmed").length;
+
   document.getElementById("opp-sub").textContent=`${all.length} 筆・${expiredCount} 筆已過期`;
   document.getElementById("expired-toggle").textContent=showExpired?`隱藏已過期（${expiredCount}）`:`顯示已過期（${expiredCount}）`;
+
+  // 統計列
+  document.getElementById("opp-stats").innerHTML=`
+    <div class="stat-chip"><span>${activeOpps.length}</span>有效機會</div>
+    <div class="stat-chip" style="background:#fef3c7;border-color:#fde68a"><span style="color:#92400e">${newCount}</span>7天內新增</div>
+    <div class="stat-chip" style="background:#fef3c7"><span style="color:#92400e">${appliedCount}</span>已申請</div>
+    <div class="stat-chip" style="background:#dcfce7"><span style="color:#14532d">${confirmedCount}</span>已確認</div>
+  `;
+
   const cnt={all:all.length};all.forEach(o=>{cnt[o.status]=(cnt[o.status]||0)+1;});
   document.getElementById("opp-filters").innerHTML=[{val:"all",label:"全部"},{val:"new",label:"🆕 新發現"},{val:"interested",label:"有興趣"},{val:"applied",label:"已申請"},{val:"confirmed",label:"已確認"},{val:"rejected",label:"未錄取"}].map(f=>`<button class="ftab${oFilter===f.val?" active":""}" onclick="setOFilter('${f.val}')">${f.label} <span style="font-size:10px;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:6px">${cnt[f.val]||0}</span></button>`).join("");
+
   let list=oFilter==="all"?all:all.filter(o=>o.status===oFilter);
   if(!showExpired)list=list.filter(o=>!isExpired(o.deadline));
   const ol=document.getElementById("opp-list"),empty=document.getElementById("opp-empty");
   if(!list.length){ol.innerHTML="";empty.style.display="block";return;}
   empty.style.display="none";
-  ol.innerHTML=list.map(o=>`
-  <div class="opp-card${isExpired(o.deadline)?" ":" "}">
+
+  ol.innerHTML=list.map(o=>{
+    const t=o.createdAt?.toDate?o.createdAt.toDate():o.createdAt?new Date(o.createdAt):null;
+    const isNew=t&&(now-t.getTime()<NEW_THRESHOLD);
+    return `
+  <div class="opp-card">
     <div>
       <div class="opp-top">
         <span class="opp-name">${o.name}</span>
+        ${isNew?`<span class="new-opp-badge">🆕 新</span>`:""}
         <span class="sbadge ${o.status||"new"}">${SL[o.status]||"🆕 新發現"}</span>
         <span class="src-badge ${o.source==="auto"?"auto":"manual"}">${o.source==="auto"?"🤖 自動抓取":"✏️ 手動"}</span>
       </div>
@@ -426,7 +506,7 @@ async function renderOpps(){
       <select class="status-sel" onchange="updateOppStatus('${o.id}',this.value)">${Object.entries(SL).map(([k,l])=>`<option value="${k}"${o.status===k?" selected":""}>${l}</option>`).join("")}</select>
       <button class="del-btn" onclick="deleteOpp('${o.id}')">🗑</button>
     </div>
-  </div>`).join("");
+  </div>`}).join("");
 }
 function dlClass(d){if(!d)return "none";const diff=Math.ceil((new Date(d.replace(/\//g,"-"))-new Date())/86400000);if(isNaN(diff))return "none";if(diff<0)return "expired";if(diff<=7)return "urgent";if(diff<=14)return "soon";return "ok";}
 function setOFilter(f){oFilter=f;renderOpps();}
