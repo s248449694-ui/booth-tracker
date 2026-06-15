@@ -134,6 +134,26 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
 .toast.info{background:#1a1a1a;color:#fff}
 .toast.success{background:#16a34a;color:#fff}
 .toast.error{background:#dc2626;color:#fff}
+/* ── 使用教學 ───────────────────────────────────── */
+.help-btn{padding:5px 10px;border:1px solid rgba(255,255,255,.22);border-radius:6px;font-size:12px;font-weight:600;color:#aaa;background:none;cursor:pointer}
+.help-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.help-modal{background:var(--surface);border-radius:16px;width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.help-hdr{padding:18px 20px 0;flex-shrink:0}
+.help-title{font-size:17px;font-weight:800;margin-bottom:12px}
+.help-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin:0 -20px;padding:0 20px}
+.htab{padding:7px 12px;border:none;background:none;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.htab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.htab:hover:not(.active){color:var(--accent);opacity:.7}
+.help-body{padding:18px 20px;overflow-y:auto;flex:1}
+.help-section{display:none}.help-section.active{display:block}
+.help-item{margin-bottom:16px}
+.help-item h4{font-size:13px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.help-item p{font-size:12px;color:var(--muted);line-height:1.7}
+.help-item p b{color:var(--accent);font-weight:700}
+.help-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:8px 11px;font-size:12px;color:#92400e;margin-top:6px;line-height:1.6}
+.help-tip::before{content:"💡 ";font-weight:700}
+.help-divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.help-badge-demo{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -168,7 +188,187 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
     <button class="nav-btn" onclick="showPage('opps',this)">擺攤機會</button>
   </div>
   <button class="sel-mode-btn" id="sel-mode-btn" onclick="toggleSelectMode()">☑ 選取</button>
+  <button class="help-btn" onclick="openHelp()">？ 使用說明</button>
 </nav>
+
+<!-- 使用教學 Modal -->
+<div class="overlay" id="help-modal" style="display:none" onclick="if(event.target===this)closeHelp()">
+<div class="help-modal">
+  <div class="help-hdr">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="help-title">🖋 Booth Tracker 使用說明</div>
+      <button class="btn" onclick="closeHelp()" style="padding:4px 10px;font-size:12px">✕</button>
+    </div>
+    <div class="help-tabs" id="help-tabs">
+      <button class="htab active" onclick="switchHelp('h-basic',this)">基本操作</button>
+      <button class="htab" onclick="switchHelp('h-vendor',this)">廠商管理</button>
+      <button class="htab" onclick="switchHelp('h-opp',this)">擺攤機會</button>
+      <button class="htab" onclick="switchHelp('h-scraper',this)">爬蟲設定</button>
+      <button class="htab" onclick="switchHelp('h-badge',this)">標記說明</button>
+    </div>
+  </div>
+  <div class="help-body">
+
+    <!-- 基本操作 -->
+    <div class="help-section active" id="h-basic">
+      <div class="help-item">
+        <h4>🗂 兩個主頁面</h4>
+        <p>頂部導覽列有兩個頁面：<br>
+          <b>廠商管理</b> — 管理你追蹤的音樂祭、市集主辦方<br>
+          <b>擺攤機會</b> — 爬蟲自動抓到的或你手動加入的攤位徵招資訊
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>☑ 選取模式（批次操作）</h4>
+        <p>點右上角 <b>☑ 選取</b> 進入選取模式，可以勾選多張廠商卡片，然後批次 <b>設為追蹤 / 取消追蹤 / 刪除</b>。再次點擊或按「取消」離開。</p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>🔍 搜尋 + 排序</h4>
+        <p>廠商管理頁有搜尋欄，可輸入名稱或標籤關鍵字即時篩選。右側排序下拉可依<b>最新加入 / 名稱 / 最近更新 / 機會數量</b>排序。</p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>🔄 資料同步</h4>
+        <p>資料存在 Firebase 雲端，多裝置開同一個網址就能即時共享。後端爬蟲每 8 小時自動跑一次（台灣時間早上 8 點、下午 4 點、午夜）。</p>
+        <div class="help-tip">手動新增的機會和爬蟲抓到的機會都存在同一個資料庫，不會互相覆蓋。</div>
+      </div>
+    </div>
+
+    <!-- 廠商管理 -->
+    <div class="help-section" id="h-vendor">
+      <div class="help-item">
+        <h4>➕ 新增廠商</h4>
+        <p>點右上角 <b>＋ 新增廠商</b>，填入名稱即可。其他欄位：<br>
+          <b>社群連結</b> — 純顯示用，FB / IG 連結按鈕會出現在卡片上<br>
+          <b>FB 粉專 ID</b>（爬蟲設定）— 爬蟲用這個欄位去抓 FB 貼文<br>
+          <b>標籤 / 備注</b> — 可搜尋的輔助資訊
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>⭐ 追蹤 / 取消追蹤</h4>
+        <p>卡片左上角的 <b>追蹤中 / 追蹤</b> 按鈕控制「這個廠商是否被爬蟲監控」。<br>
+          只有標為 <b>⭐ 追蹤中</b> 的廠商，後端爬蟲才會去抓它的網站和 FB 貼文。</p>
+        <div class="help-tip">剛加入的廠商預設未追蹤，記得開啟。也可以用選取模式批次開啟。</div>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>📥 匯入範本</h4>
+        <p>點搜尋欄右邊的 <b>📥 匯入範本</b>，可一次載入 10 個台灣常見音樂祭和市集（大港開唱、春浪、168幸福市集等）。已存在的不會重複匯入。</p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>🔢 機會數量徽章</h4>
+        <p>每張廠商卡片右上角顯示「<b>X 個機會</b>」，是這個廠商目前有效（未過期）的擺攤機會數量。點數字旁的標記可看 🆕 7天內新增的機會。</p>
+      </div>
+    </div>
+
+    <!-- 擺攤機會 -->
+    <div class="help-section" id="h-opp">
+      <div class="help-item">
+        <h4>🤖 自動抓取 vs ✏️ 手動新增</h4>
+        <p>機會有兩種來源：<br>
+          <b>🤖 自動抓取</b> — 爬蟲解析廠商官網或 FB 貼文後，由 Claude AI 提取出來<br>
+          <b>✏️ 手動</b> — 你自己點「＋ 手動新增」填入的
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>📋 狀態管理</h4>
+        <p>每筆機會有狀態，可在機會卡片右側的下拉選單修改：<br>
+          <b>🆕 新發現</b> → <b>有興趣</b> → <b>已申請</b> → <b>已確認 / 未錄取</b><br>
+          頁面頂部可依狀態篩選，讓你快速看到「已申請待確認」的項目。
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>⏰ 截止日顏色說明</h4>
+        <p>機會卡片右上角的截止日用顏色提示緊迫程度：<br>
+          <span style="display:inline-block;padding:2px 7px;border-radius:5px;background:#dcfce7;color:#14532d;font-size:11px;font-weight:700">14天以上</span>&nbsp;充裕&ensp;
+          <span style="display:inline-block;padding:2px 7px;border-radius:5px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700">14天內</span>&nbsp;快到期&ensp;
+          <span style="display:inline-block;padding:2px 7px;border-radius:5px;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700">7天內/已過</span>&nbsp;緊急/過期
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>👻 顯示 / 隱藏已過期</h4>
+        <p>預設隱藏已過截止日的機會，避免干擾。點右上角 <b>顯示已過期（N）</b> 可切換。</p>
+        <div class="help-tip">過期機會不會自動刪除，保留作為歷史紀錄。</div>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>📊 統計列</h4>
+        <p>頁面上方四格統計：<b>有效機會總數 / 7 天內新增 / 已申請 / 已確認</b>。快速掌握目前的申請狀況。</p>
+      </div>
+    </div>
+
+    <!-- 爬蟲設定 -->
+    <div class="help-section" id="h-scraper">
+      <div class="help-item">
+        <h4>🌐 官方網站爬蟲</h4>
+        <p>編輯廠商 → 在「社群連結」填入 <b>官方網站</b> URL，爬蟲每次執行時會爬取該網頁全文，交由 Claude AI 判斷是否有攤位招募資訊。</p>
+        <div class="help-tip">網站若需登入或是純 JS 渲染，爬蟲可能抓不到，這時依賴 FB 粉專或手動填寫。</div>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>📘 FB 粉專爬蟲</h4>
+        <p>編輯廠商 → 在「爬蟲設定」的 <b>FB 粉專 ID</b> 填入 Facebook 粉專網址的最後一段文字。<br>
+          例：<code style="background:#f3f4f6;padding:2px 5px;border-radius:3px;font-size:11px">https://www.facebook.com/<b>dakangfest</b></code> → 填 <b>dakangfest</b><br>
+          爬蟲透過 Facebook Graph API 抓取最新貼文，篩選含「招募、攤位、申請」等關鍵字的貼文後讓 AI 解析。
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>📷 IG 不支援自動抓取</h4>
+        <p>IG 填入的帳號只用來顯示連結按鈕（點擊後開新分頁），Meta 的 API 限制無法自動讀取別人的 IG 內容。</p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>⏱ 爬蟲執行時間</h4>
+        <p>後端每 8 小時跑一次，UTC 時間的 <code style="background:#f3f4f6;padding:2px 5px;border-radius:3px;font-size:11px">0 */8 * * *</code>，對應台灣時間 <b>早上 8 點、下午 4 點、凌晨 12 點</b>。</p>
+        <div class="help-tip">首次新增廠商後，等到下一個整點跑完就會看到機會。若想立即測試可到 Railway 手動 Deploy。</div>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>❌ 抓取異常</h4>
+        <p>廠商卡片底部若顯示紅色「❌ 抓取異常」，代表上次爬蟲執行時這個廠商的網站或 FB 無回應。原因可能是：網站暫時下線、FB 粉專 ID 填錯、或 API Token 失效。</p>
+      </div>
+    </div>
+
+    <!-- 標記說明 -->
+    <div class="help-section" id="h-badge">
+      <div class="help-item">
+        <h4>廠商卡片上的標記</h4>
+        <p>
+          <span style="padding:3px 9px;border-radius:5px;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;font-size:11px;font-weight:700">⭐ 追蹤中</span>&ensp;爬蟲監控中，每 8 小時自動抓取<br><br>
+          <span style="padding:3px 9px;border-radius:5px;background:#f3f4f6;color:#6b7280;font-size:11px;font-weight:700;border:1px solid #e5e7eb">追蹤</span>&ensp;未追蹤，爬蟲不處理<br><br>
+          <span style="padding:3px 9px;border-radius:5px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700">5 個機會</span>&ensp;目前有效（未過期）的擺攤機會數<br><br>
+          <span style="padding:2px 6px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;border:1px solid #fde68a">🆕 2 新</span>&ensp;7 天內新增的機會數<br><br>
+          <span style="padding:2px 6px;border-radius:4px;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;font-size:10px;font-weight:700">🤖 自動監控</span>&ensp;有設定 FB 或官網，爬蟲來源正常<br><br>
+          <span style="padding:2px 6px;border-radius:4px;background:#f9fafb;border:1px solid #e5e7eb;color:#9ca3af;font-size:10px;font-weight:700">⚠️ 未設爬蟲來源</span>&ensp;追蹤中但沒填 FB 粉專 ID 或官網<br><br>
+          <span style="padding:2px 6px;border-radius:4px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:10px;font-weight:700">❌ 抓取異常</span>&ensp;上次爬蟲執行時抓取失敗
+        </p>
+      </div>
+      <hr class="help-divider">
+      <div class="help-item">
+        <h4>機會卡片上的標記</h4>
+        <p>
+          <span style="padding:2px 7px;border-radius:20px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700">🆕 新發現</span>&ensp;
+          <span style="padding:2px 7px;border-radius:20px;background:#ede9fe;color:#5b21b6;font-size:11px;font-weight:700">有興趣</span>&ensp;
+          <span style="padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700">已申請</span>&ensp;
+          <span style="padding:2px 7px;border-radius:20px;background:#dcfce7;color:#14532d;font-size:11px;font-weight:700">已確認</span>&ensp;
+          <span style="padding:2px 7px;border-radius:20px;background:#f3f4f6;color:#6b7280;font-size:11px;font-weight:700">未錄取</span><br><br>
+          <span style="background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">🤖 自動抓取</span>&ensp;爬蟲找到的&ensp;
+          <span style="background:#fafafa;border:1px solid #e5e7eb;color:#6b7280;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">✏️ 手動</span>&ensp;你自己加的
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /help-body -->
+</div>
+</div>
 <main>
 <div id="page-vendors" class="page active">
   <div class="page-hdr">
@@ -519,6 +719,16 @@ async function saveOpp(){
 }
 async function updateOppStatus(id,status){await db.collection(OC).doc(id).update({status});const o=oppsCache.find(x=>x.id===id);if(o)o.status=status;toast("狀態已更新");}
 async function deleteOpp(id){if(!confirm("確定刪除？"))return;await db.collection(OC).doc(id).delete();renderOpps();toast("已刪除");}
+
+/* ── 使用教學 ── */
+function openHelp(){document.getElementById("help-modal").style.display="flex";}
+function closeHelp(){document.getElementById("help-modal").style.display="none";}
+function switchHelp(id,btn){
+  document.querySelectorAll(".help-section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".htab").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  btn.classList.add("active");
+}
 
 boot();
 </script>
