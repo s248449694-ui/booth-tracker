@@ -121,6 +121,14 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
 .modal{background:var(--surface);border-radius:14px;padding:22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
 .modal-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.modal-section.scraper{color:#1d4ed8;border-bottom-color:#bfdbfe}
+.scraper-zone{background:#f0f7ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 13px;margin-bottom:11px}
+.scraper-zone .fg{margin-bottom:9px}.scraper-zone .fg:last-child{margin-bottom:0}
+.display-zone{background:#fafaf9;border:1px solid var(--border);border-radius:9px;padding:12px 13px;margin-bottom:11px}
+.display-zone .fg{margin-bottom:9px}.display-zone .fg:last-child{margin-bottom:0}
+.zone-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px}
+.zone-label.blue{color:#1d4ed8}.zone-label.gray{color:var(--muted)}
+.zone-note{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5}
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
 .fg label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
 .fg input,.fg select,.fg textarea{padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#f9f8f5;outline:none;font-family:inherit;width:100%}
@@ -415,20 +423,32 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12px;font-fa
   <h2 class="modal-title" id="vm-title">新增廠商</h2>
   <div class="fg"><label>廠商名稱 *</label><input id="vm-name" placeholder="例：大港開唱、168幸福市集"></div>
 
-  <div class="modal-section">社群連結（顯示用）</div>
-  <div class="frow">
-    <div class="fg"><label>Facebook 粉專</label><input id="vm-facebook" placeholder="@帳號或網址"></div>
-    <div class="fg"><label>Instagram（僅顯示）</label><input id="vm-instagram" placeholder="@帳號"></div>
+  <!-- 顯示連結區 -->
+  <div class="display-zone">
+    <div class="zone-label gray">🔗 對外顯示連結 <span style="font-weight:400;font-size:10px">— 卡片上顯示按鈕，爬蟲不使用</span></div>
+    <div class="frow">
+      <div class="fg"><label>Facebook 粉專網址</label><input id="vm-facebook" placeholder="https://www.facebook.com/..."></div>
+      <div class="fg"><label>Instagram 帳號</label><input id="vm-instagram" placeholder="@帳號"></div>
+    </div>
   </div>
-  <div class="fg"><label>官方網站</label><input id="vm-website" placeholder="https://..."></div>
 
-  <div class="modal-section">爬蟲設定（自動監控用）</div>
-  <div class="fg">
-    <label>FB 粉專 ID</label>
-    <input id="vm-fbpage" placeholder="例：dakangfest 或 168market.tw">
-    <div class="hint">填 FB 網址最後一段文字，爬蟲用 Graph API 自動抓貼文。Instagram 不支援自動抓取。</div>
+  <!-- 爬蟲設定區 -->
+  <div class="scraper-zone">
+    <div class="zone-label blue">🤖 爬蟲自動監控 <span style="font-weight:400;font-size:10px">— 以下欄位由後端程式讀取</span></div>
+    <div class="fg">
+      <label>官方網站</label>
+      <input id="vm-website" placeholder="https://..." onblur="validateWebsite(this.value)">
+      <div id="vm-website-msg" style="display:none;margin-top:5px;padding:6px 9px;border-radius:6px;font-size:12px;line-height:1.5"></div>
+      <div class="hint">爬蟲會抓取網頁全文讓 AI 解析。同時在卡片上顯示 🌐 連結。</div>
+    </div>
+    <div class="fg">
+      <label>FB 粉專 ID</label>
+      <input id="vm-fbpage" placeholder="貼上 FB 網址或直接填 ID，例：dakangfest" oninput="validateFbPage(this.value)" onblur="autoFixFbPage()">
+      <div id="vm-fbpage-msg" style="display:none;margin-top:5px;padding:6px 9px;border-radius:6px;font-size:12px;line-height:1.5"></div>
+      <div class="hint">爬蟲用 Graph API 抓貼文。社團（/groups/）無法使用。</div>
+    </div>
+    <label class="watch-chk" style="margin-bottom:0"><input type="checkbox" id="vm-watch"> 加入自動追蹤（爬蟲會定期監控此廠商）</label>
   </div>
-  <label class="watch-chk"><input type="checkbox" id="vm-watch"> 加入自動追蹤（爬蟲會監控此廠商）</label>
 
   <div class="modal-section">其他資訊</div>
   <div class="fg"><label>搜尋關鍵字（空格分隔）</label><input id="vm-kw" placeholder="大港開唱 Megaport Festival"></div>
@@ -719,6 +739,90 @@ async function saveOpp(){
 }
 async function updateOppStatus(id,status){await db.collection(OC).doc(id).update({status});const o=oppsCache.find(x=>x.id===id);if(o)o.status=status;toast("狀態已更新");}
 async function deleteOpp(id){if(!confirm("確定刪除？"))return;await db.collection(OC).doc(id).delete();renderOpps();toast("已刪除");}
+
+/* ── 欄位驗證 ── */
+function parseFbInput(raw) {
+  const s = (raw||'').trim();
+  if (!s) return {id:'', type:'empty', msg:''};
+
+  // 社團
+  if (s.includes('/groups/')) {
+    const m = s.match(/groups\/(\d+)/);
+    return {id: m?m[1]:s, type:'group',
+      msg:'❌ 這是 <b>Facebook 社團</b>，Graph API 無法抓取社團貼文。請改用手動新增機會，或找該活動的官網/粉專。'};
+  }
+
+  // 完整網址（含 facebook.com）
+  if (s.includes('facebook.com')) {
+    let path = s.replace(/^https?:\/\/(www\.)?facebook\.com\/?/,'');
+    path = path.split('?')[0].split('#')[0].replace(/\/$/,'');
+    path = path.replace(/\/(posts|about|videos|photos|reels).*/,'');
+    // share 連結
+    if (path.startsWith('share/') || path.startsWith('sharer')) {
+      return {id:'', type:'share',
+        msg:'❌ 這是 <b>分享連結</b>，不是粉專 ID。請直接進入粉專頁面，複製網址最後那段文字。'};
+    }
+    if (path) return {id:path, type:'page',
+      msg:`✅ 已自動擷取粉專 ID：<b>${path}</b>`};
+  }
+
+  // 含 http 但不是 facebook.com
+  if (s.startsWith('http')) {
+    return {id:s, type:'other-url',
+      msg:'⚠️ 這看起來不是 Facebook 網址。若是官網請填在「官方網站」欄位。'};
+  }
+
+  // 含斜線或問號
+  if (s.includes('/') || s.includes('?')) {
+    return {id:'', type:'bad-format',
+      msg:'⚠️ 格式有誤，請只填粉專網址最後那段文字，不含斜線或 ?。'};
+  }
+
+  // 純 ID — 合法
+  return {id:s, type:'page', msg:''};
+}
+
+function showFieldMsg(elId, msg, color) {
+  const el = document.getElementById(elId);
+  if (!msg) {el.style.display='none'; return;}
+  el.innerHTML = msg;
+  el.style.display = 'block';
+  el.style.background = color==='green'?'#f0fdf4':color==='red'?'#fef2f2':'#fffbeb';
+  el.style.border = `1px solid ${color==='green'?'#bbf7d0':color==='red'?'#fecaca':'#fde68a'}`;
+  el.style.color = color==='green'?'#15803d':color==='red'?'#dc2626':'#92400e';
+}
+
+function validateFbPage(val) {
+  const r = parseFbInput(val);
+  if (!val.trim()) {showFieldMsg('vm-fbpage-msg','',null); return;}
+  const color = r.type==='page'?'green': r.type==='empty'?null:'red';
+  showFieldMsg('vm-fbpage-msg', r.msg||(!r.msg&&r.type==='page'?'✅ 格式正確':''), color);
+}
+
+function autoFixFbPage() {
+  const input = document.getElementById('vm-fbpage');
+  const r = parseFbInput(input.value);
+  if (r.type==='page' && r.id && r.id !== input.value.trim()) {
+    input.value = r.id;
+  }
+  if (r.type==='group') showFieldMsg('vm-fbpage-msg', r.msg, 'red');
+  else if (r.type==='share' || r.type==='bad-format' || r.type==='other-url') showFieldMsg('vm-fbpage-msg', r.msg, 'red');
+  else if (r.type==='page' && r.id) showFieldMsg('vm-fbpage-msg', `✅ 粉專 ID：<b>${r.id}</b>`, 'green');
+}
+
+function validateWebsite(val) {
+  if (!val.trim()) {showFieldMsg('vm-website-msg','',null); return;}
+  if (!val.startsWith('http')) {
+    showFieldMsg('vm-website-msg','⚠️ 網址需要以 <b>https://</b> 開頭', 'red'); return;
+  }
+  if (val.includes('facebook.com') || val.includes('instagram.com')) {
+    showFieldMsg('vm-website-msg','⚠️ 這是社群網址，請填在上方「社群連結」欄位，官網是指品牌自己的網站。', 'red'); return;
+  }
+  if (val.includes('linktr.ee')) {
+    showFieldMsg('vm-website-msg','⚠️ Linktree 是導覽頁，爬蟲抓不到招募內容，建議填真正的活動官網。', 'yellow'); return;
+  }
+  showFieldMsg('vm-website-msg','✅ 格式正確', 'green');
+}
 
 /* ── 使用教學 ── */
 function openHelp(){document.getElementById("help-modal").style.display="flex";}
